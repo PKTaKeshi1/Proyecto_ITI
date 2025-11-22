@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Editar Producto</h2>
+
+  <!-- Mensajes Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Mensajes de Validación JS -->
+  <div id="alertaProducto" class="alert alert-danger d-none mt-3" role="alert"></div>
+
+  <form action="{{ url_for('producto.actualizar', id_producto=producto[0]) }}" method="POST" class="card p-4 shadow-sm" onsubmit="return validarFormulario()">
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input type="text" class="form-control solo-alfanumerico" id="nombre" name="nombre" value="{{ producto[1] }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="descripcion" class="form-label">Descripción</label>
+      <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required>{{ producto[2] }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label for="precio_unitario" class="form-label">Precio Unitario</label>
+      <input type="number" class="form-control" id="precio_unitario" name="precio_unitario" value="{{ producto[3] }}" min="0" step="0.01" required>
+    </div>
+    <div class="mb-3">
+      <label for="stock" class="form-label">Stock</label>
+      <input type="number" class="form-control" id="stock" name="stock" value="{{ producto[4] }}" min="0" required>
+    </div>
+    <div class="d-flex justify-content-between">
+      <a href="{{ url_for('producto.listar') }}" class="btn btn-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Actualizar</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Solo letras, números y espacios
+  document.querySelectorAll('.solo-alfanumerico').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, ''); // Solo permite letras, números y espacios
+    });
+  });
+
+  function esTextoValido(valor) {
+    return valor.trim().length > 0;
+  }
+
+  function mostrarAlerta(mensaje) {
+    const alerta = document.getElementById("alertaProducto");
+    alerta.textContent = mensaje;
+    alerta.classList.remove('d-none');
+    setTimeout(() => alerta.classList.add('d-none'), 5000);
+  }
+
+  function validarFormulario() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const descripcion = document.getElementById("descripcion").value.trim();
+    const precioUnitario = document.getElementById("precio_unitario").value.trim();
+    const stock = document.getElementById("stock").value.trim();
+
+    // Validaciones
+    if (!esTextoValido(nombre)) {
+      mostrarAlerta("El campo Nombre no puede estar vacío.");
+      return false;
+    }
+
+    if (!esTextoValido(descripcion)) {
+      mostrarAlerta("El campo Descripción no puede estar vacío.");
+      return false;
+    }
+
+    if (parseFloat(precioUnitario) <= 0) {
+      mostrarAlerta("El Precio Unitario debe ser mayor que 0.");
+      return false;
+    }
+
+    if (parseInt(stock) < 0) {
+      mostrarAlerta("El Stock no puede ser negativo.");
+      return false;
+    }
+
+    return true;
+  }
+</script>
+
+{% endblock %}

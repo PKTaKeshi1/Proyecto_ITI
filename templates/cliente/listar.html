@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Listado de Clientes</h2>
+    <a href="{{ url_for('usuario.menu') }}" class="btn btn-outline-secondary">Volver al Menú Principal</a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <a href="{{ url_for('cliente.crear') }}" class="btn btn-primary mb-3">Nuevo Cliente</a>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Nombres</th>
+        <th>Apellidos</th>
+        <th>Razon Social</th>
+        <th>RUC/DNI</th>
+        <th>Direccion</th>
+        <th>Teléfono</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cliente in clientes %}
+      <tr>
+        <td>{{ cliente[0] }}</td>
+        <td>{{ cliente[1] }}</td>
+        <td>{{ cliente[2] }}</td>
+        <td>{{ cliente[3] }}</td>
+        <td>{{ cliente[5] }}</td>
+        <td>{{ cliente[6] }}</td>
+        <td>{{ cliente[7] }}</td>
+        <td>{{ cliente[8] }}</td>
+        <td>
+          <a href="{{ url_for('cliente.editar', id_cliente=cliente[0]) }}" class="btn btn-warning btn-sm">Editar</a>
+          <button class="btn btn-danger btn-sm" onclick="confirmarEliminacion({{ cliente[0] }}, '{{ cliente[1] }}', '{{ cliente[2] }}')">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmarEliminacion(id, nombres, apellidos) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      html: `¿Deseas eliminar al cliente <strong>${nombres} ${apellidos}</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = `/cliente/eliminar/${id}`;
+      }
+    });
+  }
+</script>
+{% endblock %}

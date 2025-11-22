@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Registrar Cobranza</h3>
+
+  <!-- Mensajes Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Alerta de JS -->
+  <div id="alertaCobranza" class="alert alert-danger d-none mt-3" role="alert"></div>
+
+  <form method="POST" onsubmit="return validarMonto()" class="card p-4 shadow-sm">
+    <div class="mb-3">
+      <label class="form-label">Factura</label>
+      <input type="text" class="form-control" value="{{ factura[1] }}-{{ factura[2] }}" disabled>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Cliente</label>
+      <input type="text" class="form-control" value="{{ cliente[1] }}" disabled>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Monto pagado hasta ahora</label>
+      <input type="text" class="form-control" value="{{ '%.2f'|format(monto_pagado) }}" disabled>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Monto restante por pagar</label>
+      <input type="text" class="form-control" value="{{ '%.2f'|format(monto_restante) }}" disabled>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Monto a pagar</label>
+      <input type="number" step="1" name="monto_pago" id="monto_pago" class="form-control" required>
+      <small class="form-text text-muted">Monto máximo permitido: {{ '%.2f'|format(monto_restante) }}</small>
+    </div>
+
+    <!-- Campo oculto para validación en JS -->
+    <input type="hidden" id="monto_restante" value="{{ monto_restante }}">
+
+    <div class="d-flex justify-content-between">
+      <a href="{{ url_for('factura.listar') }}" class="btn btn-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Registrar Cobranza</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function mostrarAlerta(mensaje) {
+    const alerta = document.getElementById("alertaCobranza");
+    alerta.textContent = mensaje;
+    alerta.classList.remove('d-none');
+    setTimeout(() => alerta.classList.add('d-none'), 5000);
+  }
+
+  function validarMonto() {
+    const monto = parseFloat(document.getElementById("monto_pago").value);
+    const restante = parseFloat(document.getElementById("monto_restante").value);
+
+    if (isNaN(monto) || monto <= 0) {
+      mostrarAlerta("El monto debe ser un valor positivo.");
+      return false;
+    }
+
+    if (monto > restante) {
+      mostrarAlerta("El monto ingresado excede el saldo pendiente (" + restante.toFixed(2) + ").");
+      return false;
+    }
+
+    return true;
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+<!-- templates/monedas/listar.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Monedas</title>
+    <link rel="stylesheet" href="/static/estilos.css">
+</head>
+<body>
+    <h1>Gestión de Monedas</h1>
+    <a class="btn" href="/monedas/crear">+ Agregar Moneda</a>
+    <div class="tabla">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th><th>Nombre</th><th>Símbolo</th>
+                    <th>Cambio</th><th>Actualización</th><th>Subunidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in monedas %}
+                <tr>
+                    <td>{{ m[0] }}</td>
+                    <td>{{ m[1] }}</td>
+                    <td>{{ m[2] }}</td>
+                    <td>{{ m[3] }}</td>
+                    <td>{{ m[4] }}</td>
+                    <td>{{ m[5] }}</td>
+                    <td>
+                        <a href="/monedas/editar/{{ m[0] }}">Editar</a> |
+                        <a href="/monedas/eliminar/{{ m[0] }}">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

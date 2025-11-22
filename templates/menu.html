@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Menú Principal</h2>
+  <div class="row text-center justify-content-center">
+    
+    <!-- Opción 1: Facturas -->
+<div class="col-md-3 mb-4">
+  <a href="{{ url_for('factura.menu_factura') }}" class="text-decoration-none">
+    <div class="card shadow rounded-4">
+      <img src="{{ url_for('static', filename='img/factura.png') }}" class="card-img-top p-4" style="height:150px; object-fit:contain;" alt="Facturas">
+      <div class="card-body">
+        <h5 class="card-title">Ventas</h5>
+      </div>
+    </div>
+  </a>
+</div>
+
+
+    <!-- Opción 2: Productos -->
+    <div class="col-md-3 mb-4">
+      <a href="{{ url_for('producto.listar') }}" class="text-decoration-none">
+        <div class="card shadow rounded-4">
+          <img src="{{ url_for('static', filename='img/producto.png') }}" class="card-img-top p-4" style="height:150px; object-fit:contain;" alt="Productos">
+          <div class="card-body">
+            <h5 class="card-title">Productos</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Opción 3: Vendedores -->
+    <div class="col-md-3 mb-4">
+      <a href="{{ url_for('vendedor.listar') }}" class="text-decoration-none">
+        <div class="card shadow rounded-4">
+          <img src="{{ url_for('static', filename='img/vendedor.png') }}" class="card-img-top p-4" style="height:150px; object-fit:contain;" alt="Vendedores">
+          <div class="card-body">
+            <h5 class="card-title">Vendedores</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Opción 4: Clientes -->
+    <div class="col-md-3 mb-4">
+      <a href="{{ url_for('cliente.listar') }}" class="text-decoration-none">
+        <div class="card shadow rounded-4">
+          <img src="{{ url_for('static', filename='img/cliente.png') }}" class="card-img-top p-4" style="height:150px; object-fit:contain;" alt="Clientes">
+          <div class="card-body">
+            <h5 class="card-title">Clientes</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

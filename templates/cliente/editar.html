@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Editar Cliente</h2>
+
+  <!-- Mensajes Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Mensajes de Validación JS -->
+  <div id="alertaDocumento" class="alert alert-danger d-none mt-3" role="alert"></div>
+
+  <form action="{{ url_for('cliente.actualizar', id_cliente=cliente[0]) }}" method="post" onsubmit="return validarFormulario()">
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label for="nombres" class="form-label">Nombres</label>
+        <input type="text" class="form-control solo-letras" name="nombres" value="{{ cliente[1] }}" required>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="apellidos" class="form-label">Apellidos</label>
+        <input type="text" class="form-control solo-letras" name="apellidos" value="{{ cliente[2] }}" required>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="razon_social" class="form-label">Razón Social</label>
+        <input type="text" class="form-control solo-letras" name="razon_social" value="{{ cliente[3] }}" required>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="tipo_doc" class="form-label">Tipo de Documento</label>
+        <select class="form-select" name="tipo_doc" id="tipo_doc" onchange="actualizarPlaceholder()" required>
+          <option value="DNI" {% if cliente[4] == 'DNI' %}selected{% endif %}>DNI</option>
+          <option value="RUC" {% if cliente[4] == 'RUC' %}selected{% endif %}>RUC</option>
+        </select>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="dni_ruc" class="form-label">DNI/RUC</label>
+        <input type="text" class="form-control solo-numeros" name="dni_ruc" id="dni_ruc" value="{{ cliente[5] }}" maxlength="11" required>
+        <small id="docHint" class="form-text text-muted">Debe tener el formato correspondiente según el tipo de documento.</small>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="direccion" class="form-label">Dirección</label>
+        <input type="text" class="form-control" name="direccion" value="{{ cliente[6] }}" required>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="text" class="form-control solo-numeros" name="telefono" value="{{ cliente[7] }}" maxlength="9" required>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" name="email" value="{{ cliente[8] }}" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+    <a href="{{ url_for('cliente.listar') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+
+<script>
+  // Solo letras
+  document.querySelectorAll('.solo-letras').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    });
+  });
+
+  // Solo números
+  document.querySelectorAll('.solo-numeros').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^0-9]/g, '');
+    });
+  });
+
+  function esTextoValido(valor) {
+    return valor.trim().length > 0;
+  }
+
+  function actualizarPlaceholder() {
+    const tipo = document.getElementById("tipo_doc").value;
+    const input = document.getElementById("dni_ruc");
+    const hint = document.getElementById("docHint");
+
+    if (tipo === "DNI") {
+      input.placeholder = "Ejemplo: 12345678";
+      input.maxLength = 8;
+      hint.textContent = "El DNI debe tener exactamente 8 dígitos.";
+    } else if (tipo === "RUC") {
+      input.placeholder = "Ejemplo: 20123456789";
+      input.maxLength = 11;
+      hint.textContent = "El RUC debe tener exactamente 11 dígitos.";
+    }
+  }
+
+  function mostrarAlerta(mensaje) {
+    const alerta = document.getElementById("alertaDocumento");
+    alerta.textContent = mensaje;
+    alerta.classList.remove('d-none');
+    setTimeout(() => alerta.classList.add('d-none'), 5000);
+  }
+
+  function validarFormulario() {
+    const tipo = document.getElementById("tipo_doc").value;
+    const numero = document.getElementById("dni_ruc").value.trim();
+    const nombres = document.querySelector('[name="nombres"]').value.trim();
+    const apellidos = document.querySelector('[name="apellidos"]').value.trim();
+    const razon_social = document.querySelector('[name="razon_social"]').value.trim();
+    const direccion = document.querySelector('[name="direccion"]').value.trim();
+    const telefono = document.querySelector('[name="telefono"]').value.trim();
+    const email = document.querySelector('[name="email"]').value.trim();
+
+    if (!esTextoValido(nombres)) {
+      mostrarAlerta("El campo Nombres no puede estar vacío.");
+      return false;
+    }
+    if (!esTextoValido(apellidos)) {
+      mostrarAlerta("El campo Apellidos no puede estar vacío.");
+      return false;
+    }
+    if (!esTextoValido(razon_social)) {
+      mostrarAlerta("El campo Razón Social no puede estar vacío.");
+      return false;
+    }
+    if (!esTextoValido(direccion)) {
+      mostrarAlerta("El campo Dirección no puede estar vacío.");
+      return false;
+    }
+    if (!esTextoValido(numero) || (tipo === "DNI" && numero.length !== 8) || (tipo === "RUC" && numero.length !== 11)) {
+      mostrarAlerta(`El número de ${tipo} debe tener ${tipo === 'DNI' ? '8' : '11'} dígitos.`);
+      return false;
+    }
+    if (telefono.length !== 9) {
+      mostrarAlerta("El número de teléfono debe tener exactamente 9 dígitos.");
+      return false;
+    }
+    if (!correo.includes('@') || !correo.includes('.com') && !correo.includes('.pe')) {
+      mostrarAlerta("Debe ingresar un correo electrónico válido.");
+      return false;
+    }
+
+    return true;
+  }
+
+  document.addEventListener('DOMContentLoaded', actualizarPlaceholder);
+</script>
+{% endblock %}

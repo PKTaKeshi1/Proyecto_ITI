@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Detalle de la Venta</h2>
+    <a href="{{ url_for('venta.listar_ventas') }}" class="btn btn-outline-secondary">Volver al Listado</a>
+  </div>
+
+  <div class="mb-3">
+    <p><strong>ID:</strong> {{ cabecera[0] }}</p>
+    <p><strong>Cliente:</strong> {{ cabecera[1] }}</p>
+    <p><strong>Vendedor:</strong> {{ cabecera[2] }}</p>
+    <p><strong>Moneda:</strong> {{ cabecera[3] }}</p>
+    <p><strong>Total:</strong> {{ cabecera[3] }} {{ "%.2f"|format(cabecera[4]) }}</p>
+    <p><strong>Fecha:</strong> {{ cabecera[5] }}</p>
+  </div>
+
+  <h5 class="mt-4">Productos Vendidos</h5>
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if detalle %}
+        {% for item in detalle %}
+        <tr>
+          <td>{{ item[0] }}</td>
+          <td>{{ item[1] }}</td>
+          <td>{{ "%.2f"|format(item[2]) }}</td>
+          <td>{{ "%.2f"|format(item[3]) }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="4" class="text-center text-muted">No hay productos registrados en esta venta.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

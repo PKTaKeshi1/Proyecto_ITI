@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+    <h1>Bienvenido al Sistema</h1>
+
+    {% if session['usuario_nombres'] %}
+        <p>Hola, <strong>{{ session['usuario_nombres'] }}</strong>. Has iniciado sesión correctamente.</p>
+    {% endif %}
+
+    <nav>
+        <a href="{{ url_for('usuario.logout') }}">Cerrar sesión</a>
+    </nav>
+
+    <hr>
+
+    <div>
+        <h2>Opciones disponibles</h2>
+        <ul>
+            <li><a href="#">Gestión de usuarios</a></li>
+            <li><a href="#">Facturación</a></li>
+            <li><a href="#">Reportes</a></li>
+            <!-- Agrega más opciones según el módulo -->
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Listado de Vendedores</h2>
+    <a href="{{ url_for('usuario.menu') }}" class="btn btn-outline-secondary">Volver al Menú Principal</a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <a href="{{ url_for('vendedor.crear') }}" class="btn btn-primary mb-3">Nuevo Vendedor</a>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Celular</th>
+        <th>Correo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for vendedor in vendedores %}
+      <tr>
+        <td>{{ vendedor[0] }}</td>
+        <td>{{ vendedor[1] }}</td>
+        <td>{{ vendedor[2] }}</td>
+        <td>{{ vendedor[3] }}</td>
+        <td>{{ vendedor[4] }}</td>
+        <td>
+          <a href="{{ url_for('vendedor.editar', id_vendedor=vendedor[0]) }}" class="btn btn-warning btn-sm">Editar</a>
+          <button class="btn btn-danger btn-sm" onclick="confirmarEliminacion({{ vendedor[0] }}, '{{ vendedor[1] }}', '{{ vendedor[2] }}')">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmarEliminacion(id, nombre, apellido) {
+    Swal.fire({
+      title: 'Confirmar Eliminación',
+      html: `¿Estás seguro de que deseas eliminar al vendedor <strong>${nombre} ${apellido}</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = `/vendedor/eliminar/${id}`;
+      }
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Registrar Nueva Venta</h2>
+  <a href="{{ url_for('venta.listar_ventas') }}" class="btn btn-outline-secondary mb-3">← Volver al Listado</a>
+
+  <!-- Mensajes Flash del Backend -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Alerta de validación JS -->
+  <div id="alertaVenta" class="alert alert-danger d-none mt-3" role="alert"></div>
+
+  <form method="POST" action="{{ url_for('venta.guardar_venta') }}" onsubmit="return validarFormulario()">
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label>Cliente:</label>
+        <select name="id_cliente" class="form-select" required>
+          <option value="">Seleccione...</option>
+          {% for cliente in clientes %}
+          <option value="{{ cliente[0] }}">{{ cliente[1] }} {{ cliente[2] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label>Vendedor:</label>
+        <select name="id_vendedor" class="form-select" required>
+          <option value="">Seleccione...</option>
+          {% for vendedor in vendedores %}
+          <option value="{{ vendedor[0] }}">{{ vendedor[1] }} {{ vendedor[2] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label>Moneda:</label>
+        <select name="id_moneda" id="select-moneda" class="form-select" required onchange="actualizarSimboloMoneda()">
+          <option value="">Seleccione...</option>
+          {% for moneda in monedas %}
+          <option value="{{ moneda[0] }}" data-simbolo="{{ moneda[2] }}">{{ moneda[1] }} ({{ moneda[2] }})</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <hr>
+    <h5>Detalle de Productos</h5>
+    <div id="productos-container">
+      <div class="row producto-item mb-2">
+        <div class="col-md-4">
+          <label>Producto:</label>
+          <select name="id_producto[]" class="form-select producto-select" required onchange="actualizarPrecioYStock(this)">
+            <option value="">Seleccione...</option>
+            {% for producto in productos %}
+            <option value="{{ producto[0] }}" data-precio="{{ producto[3] }}" data-stock="{{ producto[4] }}">
+              {{ producto[1] }} (Stock: {{ producto[4] }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label>Precio Unitario:</label>
+          <input type="number" name="precio_unitario[]" class="form-control precio-unitario" readonly>
+        </div>
+        <div class="col-md-2">
+          <label>Cantidad:</label>
+          <input type="number" name="cantidad[]" class="form-control cantidad" min="1" oninput="actualizarSubtotal(this)">
+        </div>
+        <div class="col-md-2">
+          <label>Subtotal:</label>
+          <input type="text" class="form-control subtotal" readonly>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="button" class="btn btn-danger" onclick="eliminarProducto(this)">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-success my-2" onclick="agregarProducto()">+ Agregar Producto</button>
+
+    <div class="text-end mt-4">
+      <h4>Total Venta: <span id="simbolo-moneda">S/</span> <span id="total-venta">0.00</span></h4>
+    </div>
+
+    <div class="text-center mt-3">
+      <button type="submit" class="btn btn-primary">Registrar Venta</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function actualizarSimboloMoneda() {
+    const select = document.getElementById("select-moneda");
+    const simbolo = select.options[select.selectedIndex].getAttribute("data-simbolo") || '';
+    document.getElementById("simbolo-moneda").innerText = simbolo;
+  }
+
+  function actualizarPrecioYStock(select) {
+    const selectedOption = select.options[select.selectedIndex];
+    const precio = parseFloat(selectedOption.getAttribute("data-precio"));
+    const stock = parseInt(selectedOption.getAttribute("data-stock"));
+
+    const row = select.closest('.producto-item');
+    row.querySelector('.precio-unitario').value = precio || '';
+    const cantidadInput = row.querySelector('.cantidad');
+    cantidadInput.value = '';
+    cantidadInput.max = stock || '';
+    row.querySelector('.subtotal').value = '';
+    actualizarTotalVenta();
+  }
+
+  function actualizarSubtotal(input) {
+    const row = input.closest('.producto-item');
+    const precio = parseFloat(row.querySelector('.precio-unitario').value) || 0;
+    const cantidad = parseInt(input.value) || 0;
+    const max = parseInt(input.max);
+
+    if (cantidad > max) {
+      mostrarAlerta("La cantidad no puede ser mayor al stock disponible (" + max + ")");
+      input.value = '';
+      row.querySelector('.subtotal').value = '';
+    } else {
+      row.querySelector('.subtotal').value = (precio * cantidad).toFixed(2);
+    }
+
+    actualizarTotalVenta();
+  }
+
+  function actualizarTotalVenta() {
+    let total = 0;
+    document.querySelectorAll('.subtotal').forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+    document.getElementById('total-venta').innerText = total.toFixed(2);
+  }
+
+  function agregarProducto() {
+    const container = document.getElementById('productos-container');
+    const row = container.querySelector('.producto-item');
+    const newRow = row.cloneNode(true);
+
+    newRow.querySelectorAll('input').forEach(input => input.value = '');
+    newRow.querySelector('select').selectedIndex = 0;
+
+    container.appendChild(newRow);
+  }
+
+  function eliminarProducto(btn) {
+    const container = document.getElementById('productos-container');
+    const items = container.querySelectorAll('.producto-item');
+    if (items.length > 1) {
+      btn.closest('.producto-item').remove();
+      actualizarTotalVenta();
+    } else {
+      mostrarAlerta("Debe haber al menos un producto en la venta.");
+    }
+  }
+
+  function mostrarAlerta(mensaje) {
+    const alerta = document.getElementById("alertaVenta");
+    alerta.textContent = mensaje;
+    alerta.classList.remove("d-none");
+    setTimeout(() => alerta.classList.add("d-none"), 5000);
+  }
+
+  function validarFormulario() {
+    const selects = document.querySelectorAll('.producto-select');
+    const cantidades = document.querySelectorAll('.cantidad');
+    const productos = new Set();
+
+    for (let i = 0; i < selects.length; i++) {
+      const productoId = selects[i].value;
+
+      if (productoId === "") {
+        mostrarAlerta("Debe seleccionar un producto.");
+        return false;
+      }
+
+      if (productos.has(productoId)) {
+        mostrarAlerta("No puede seleccionar el mismo producto más de una vez.");
+        return false;
+      }
+
+      productos.add(productoId);
+
+      const cantidad = cantidades[i].value;
+      if (!cantidad || parseInt(cantidad) <= 0) {
+        mostrarAlerta("La cantidad debe ser mayor a 0.");
+        return false;
+      }
+    }
+
+    return true;
+  }
+</script>
+{% endblock %}

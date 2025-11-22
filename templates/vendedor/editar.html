@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Editar Vendedor</h2>
+
+  <!-- Mensajes Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Mensajes de Validación JS -->
+  <div id="alertaVendedor" class="alert alert-danger d-none mt-3" role="alert"></div>
+
+  <form action="{{ url_for('vendedor.actualizar', id_vendedor=vendedor[0]) }}" method="POST" onsubmit="return validarFormulario()">
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input type="text" class="form-control solo-letras" id="nombre" name="nombre" value="{{ vendedor[1] }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="apellido" class="form-label">Apellido</label>
+      <input type="text" class="form-control solo-letras" id="apellido" name="apellido" value="{{ vendedor[2] }}" required>
+    </div>
+    <div class="mb-3">
+      <label for="celular" class="form-label">Celular</label>
+      <input type="text" class="form-control solo-numeros" id="celular" name="celular" value="{{ vendedor[3] }}" maxlength="9" required>
+      <small id="celularHint" class="form-text text-muted">El celular debe tener exactamente 9 dígitos.</small>
+    </div>
+    <div class="mb-3">
+      <label for="correo" class="form-label">Correo Electrónico</label>
+      <input type="email" class="form-control" id="correo" name="correo" value="{{ vendedor[4] }}" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+    <a href="{{ url_for('vendedor.listar') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+
+<script>
+  // Solo letras
+  document.querySelectorAll('.solo-letras').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    });
+  });
+
+  // Solo números
+  document.querySelectorAll('.solo-numeros').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^0-9]/g, '');
+    });
+  });
+
+  function esTextoValido(valor) {
+    return valor.trim().length > 0;
+  }
+
+  function mostrarAlerta(mensaje) {
+    const alerta = document.getElementById("alertaVendedor");
+    alerta.textContent = mensaje;
+    alerta.classList.remove('d-none');
+    setTimeout(() => alerta.classList.add('d-none'), 5000);
+  }
+
+  function validarFormulario() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const celular = document.getElementById("celular").value.trim();
+    const correo = document.getElementById("correo").value.trim();
+
+    if (!esTextoValido(nombre)) {
+      mostrarAlerta("El campo Nombre no puede estar vacío.");
+      return false;
+    }
+
+    if (!esTextoValido(apellido)) {
+      mostrarAlerta("El campo Apellido no puede estar vacío.");
+      return false;
+    }
+
+    if (celular.length !== 9) {
+      mostrarAlerta("El número de celular debe tener exactamente 9 dígitos.");
+      return false;
+    }
+
+    if (!correo.includes('@') || !correo.includes('.com') && !correo.includes('.pe')) {
+      mostrarAlerta("Debe ingresar un correo electrónico válido.");
+      return false;
+    }
+
+    return true;
+  }
+</script>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Gestión de Facturas</h2>
+    <a href="{{ url_for('usuario.menu') }}" class="btn btn-outline-secondary">
+      Volver al Menú Principal
+    </a>
+  </div>
+
+  <div class="row text-center justify-content-center">
+    
+    <!-- Ver Ventas Realizadas -->
+    <div class="col-md-4 mb-4">
+      <a href="{{ url_for('venta.listar_ventas') }}" class="text-decoration-none">
+        <div class="card shadow rounded-4">
+          <img src="{{ url_for('static', filename='img/ventas.png') }}" class="card-img-top p-4" style="height:150px; object-fit:contain;" alt="Ventas">
+          <div class="card-body">
+            <h5 class="card-title">Ver Ventas Realizadas</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Ver Facturas Emitidas -->
+    <div class="col-md-4 mb-4">
+      <a href="{{ url_for('factura.listar') }}" class="text-decoration-none">
+        <div class="card shadow rounded-4">
+          <img src="{{ url_for('static', filename='img/factura_emitida.png') }}" class="card-img-top p-4" style="height:150px; object-fit:contain;" alt="Facturas">
+          <div class="card-body">
+            <h5 class="card-title">Ver Facturas Emitidas</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
