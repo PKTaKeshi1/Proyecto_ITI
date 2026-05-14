@@ -1,3 +1,4 @@
+
 CREATE TABLE `mae_usuario` (
   `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
   `nombres` text NOT NULL,
@@ -138,3 +139,19 @@ CREATE TABLE `trs_detalle_venta` (
   CONSTRAINT `trs_detalle_venta_ibfk_1` FOREIGN KEY (`id_venta`) REFERENCES `trs_venta` (`id_venta`),
   CONSTRAINT `trs_detalle_venta_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `mae_producto` (`id_producto`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO mae_moneda (
+    id_moneda,
+    nombre_moneda,
+    simbolo,
+    cambio_actual,
+    fecha_actualizacion,
+    subunidad
+) VALUES (
+    1,
+    'Sol Peruano',
+    'S/',
+    1.00,
+    '2026-05-14',
+    'Céntimos'
+);
